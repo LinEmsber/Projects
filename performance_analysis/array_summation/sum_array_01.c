@@ -7,7 +7,7 @@ Gprof usage and explanation:
 
 1. compile it, remember to add option "-pg" for gporf, and "-O0" for default optimization for
 compilation time.
-> gcc -O0 -Wall -pg gprof_sum_array_01.c
+> gcc -O0 -Wall -pg sum_array_01.c
 
 2. After we compile the output file, we MUST to run this program once to create a file, gmont.out,
 for analysis.
@@ -17,11 +17,17 @@ for analysis.
 > gprof -b ./a.out gmon.out
 
 COMBO:
-> gcc -O0 -Wall -pg gprof_sum_array_01.c && ./a.out && gprof -b ./a.out gmon.out
+> gcc -O0 -Wall -pg sum_array_01.c && ./a.out && gprof -b ./a.out gmon.out
 
+
+Perf:
+
+> sudo perf record -e branch-misses:u,branch-instructions:u ./a.out
+> sudo perf report
 
 TODO:
 use faster method (better algorithms) to do array summing.
+add time diff
 multi-thread
 
 
@@ -43,10 +49,10 @@ http://www.rapidtables.com/code/linux/gcc/gcc-o.htm
 #include <assert.h>
 
 // the length of array
-#define RAND_NUMS 1000000
+#define RAND_NUMS 10000
 
 // how many times to add array
-#define RUN_TIMES 100
+#define RUN_TIMES 1000
 
 // global variables
 int sum_simplest = 0;
@@ -195,7 +201,7 @@ void check_array_summation(int * array)
 	// assert( sum_array_simplest == sum_array_reduces_brances );
 	// assert( sum_array_simplest == sum_array_duffs_device );
 
-	// reset sum_a and sum_b
+	// reset global variable
 	sum_simplest = 0;
 	sum_reduces_brances = 0;
 	sum_duffs_device = 0;
@@ -209,9 +215,24 @@ int main(int argc, char *argv[])
 	int * array = rn_arr_gen( RAND_NUMS, 0, 1000 );
 	// print_arr( array, RAND_NUMS );
 
-	for ( i = 0; i < RUN_TIMES*10000; i++ ){
-		check_array_summation(array);
+	for ( i = 0; i < RUN_TIMES ; i++ ){
+
+		// run differet methods to sum array, and check those sum are the same.
+		sum_simplest = sum_array_simplest(array);
+		sum_duffs_device = sum_array_duffs_device(array);
+		sum_reduces_brances = sum_array_reduces_brances(array);
+
+		// assert(1);
+		// assert( sum_array_simplest == sum_array_reduces_brances );
+		// assert( sum_array_simplest == sum_array_duffs_device );
+
+		// reset global variable
+		sum_simplest = 0;
+		sum_reduces_brances = 0;
+		sum_duffs_device = 0;
 	}
+
+	free(array);
 
 	return 0;
 }
