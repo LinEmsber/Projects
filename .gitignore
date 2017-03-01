@@ -33,4 +33,4 @@
 *.su
 
 # perf
-* perf.data*
+perf.data*
