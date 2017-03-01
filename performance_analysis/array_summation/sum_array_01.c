@@ -1,9 +1,13 @@
 /*
 
-Using Gprof to conduct an analysis of array summation.
+Using Gprof or perf to conduct an analysis of array summation.
 We use different summation algorithms to compare the resources use.
 
-Gprof usage and explanation:
+-------------------------------------------------------------------------------
+Usage and explanation:
+-------------------------------------------------------------------------------
+
+Gprof:
 
 1. compile it, remember to add option "-pg" for gporf, and "-O0" for default optimization for
 compilation time.
@@ -16,14 +20,25 @@ for analysis.
 3. run Gprof to analyze the result.
 > gprof -b ./a.out gmon.out
 
-COMBO:
+or
 > gcc -O0 -Wall -pg sum_array_01.c && ./a.out && gprof -b ./a.out gmon.out
 
 
 Perf:
 
-> sudo perf record -e branch-misses:u,branch-instructions:u ./a.out
-> sudo perf report
+compile it
+> gcc -O0 -Wall -g sum_array_01.c
+
+1. find which function have the most branch-misses?
+perf with option "-e" to specify the events: branch-misses, branch-instructions
+
+> sudo perf record -e branch-misses:u,branch-instructions:u ./a.out && sudo perf report
+
+2. find the most overhead functions
+add doller sign behind executiable binary, and perf with option "-p" to specify PID.
+$! is the PID of the most recent background command.
+
+> ./a.out & sudo perf top -p $!
 
 TODO:
 use faster method (better algorithms) to do array summing.
@@ -36,6 +51,7 @@ http://os.51cto.com/art/200703/41426.htm
 https://www.ptt.cc/bbs/C_and_CPP/M.1246071002.A.A54.html
 https://en.wikipedia.org/wiki/Duff's_device
 http://www.rapidtables.com/code/linux/gcc/gcc-o.htm
+https://embedded2016.hackpad.com/ep/pad/static/YkqjhwgnQcA
 
 */
 
@@ -49,10 +65,10 @@ http://www.rapidtables.com/code/linux/gcc/gcc-o.htm
 #include <assert.h>
 
 // the length of array
-#define RAND_NUMS 10000
+#define RAND_NUMS 100000
 
 // how many times to add array
-#define RUN_TIMES 1000
+#define RUN_TIMES 10000
 
 // global variables
 int sum_simplest = 0;
@@ -197,10 +213,6 @@ void check_array_summation(int * array)
 	sum_reduces_brances = sum_array_reduces_brances(array);
 	sum_duffs_device = sum_array_duffs_device(array);
 
-	// assert(1);
-	// assert( sum_array_simplest == sum_array_reduces_brances );
-	// assert( sum_array_simplest == sum_array_duffs_device );
-
 	// reset global variable
 	sum_simplest = 0;
 	sum_reduces_brances = 0;
@@ -221,10 +233,6 @@ int main(int argc, char *argv[])
 		sum_simplest = sum_array_simplest(array);
 		sum_duffs_device = sum_array_duffs_device(array);
 		sum_reduces_brances = sum_array_reduces_brances(array);
-
-		// assert(1);
-		// assert( sum_array_simplest == sum_array_reduces_brances );
-		// assert( sum_array_simplest == sum_array_duffs_device );
 
 		// reset global variable
 		sum_simplest = 0;
