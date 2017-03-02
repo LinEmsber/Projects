@@ -32,13 +32,13 @@ compile it
 1. find which function have the most branch-misses?
 perf with option "-e" to specify the events: branch-misses, branch-instructions
 
-> sudo perf record -e branch-misses:u,branch-instructions:u ./a.out && sudo perf report
+> gcc -O0 -Wall -pg sum_array_01.c && sudo perf record -e branch-misses:u,branch-instructions:u ./a.out && sudo perf report
 
 2. find the most overhead functions
 add doller sign behind executiable binary, and perf with option "-p" to specify PID.
 $! is the PID of the most recent background command.
 
-> ./a.out & sudo perf top -p $!
+> gcc -O0 -Wall -pg sum_array_01.c && ./a.out & sudo perf top -p $!
 
 TODO:
 use faster method (better algorithms) to do array summing.
@@ -65,10 +65,10 @@ https://embedded2016.hackpad.com/ep/pad/static/YkqjhwgnQcA
 #include <assert.h>
 
 // the length of array
-#define RAND_NUMS 100000
+#define RAND_NUMS 10000000
 
 // how many times to add array
-#define RUN_TIMES 10000
+#define RUN_TIMES 1
 
 // global variables
 int sum_simplest = 0;
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
 {
 	int i;
 
-	int * array = rn_arr_gen( RAND_NUMS, 0, 1000 );
+	int * array = rn_arr_gen( RAND_NUMS, 0, 10 );
 	// print_arr( array, RAND_NUMS );
 
 	for ( i = 0; i < RUN_TIMES ; i++ ){
