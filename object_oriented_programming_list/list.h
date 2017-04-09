@@ -1,20 +1,29 @@
-/* list.h */
+/* list.h
+ * This header includes two kinds of list: array list and linked list.
+ */
 
 #ifndef LIST_H
 #define LIST_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+
+#include "generic.h"
+
 /* typedef */
 typedef struct list_operation list_operation_t;
+
 typedef struct array_list array_list_t;
 typedef struct linked_list linked_list_t;
 typedef struct list_node list_node_t;
 
 
-/* A structure includes all operations of ArrayList or LinkedList */
-list_operation_t {
-	void (* push) (list_operation_t * list, int elem);
-	int (* pop) (list_operation_t * list);
-	int (* empty) (list_operation_t * list);
+/* A structure includes all operations of array list or linked list */
+struct list_operation {
+	void (* push) (struct list_operation * list, int value);
+	int (* pop) (struct list_operation * list);
+	int (* empty) (struct list_operation * list);
 };
 
 
@@ -30,11 +39,11 @@ struct array_list {
 /* linked list node and list */
 struct list_node {
 	int value;
-	struct _ListNode * next;
+	struct list_node * next;
 };
 
-struct _LinkedList {
-	struct _ListNode * head;
+struct linked_list {
+	struct list_node * head;
 	struct list_operation list_op;
 };
 
