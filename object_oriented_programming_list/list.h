@@ -23,7 +23,7 @@ typedef struct list_node list_node_t;
 struct list_operation {
 	void (* push) (struct list_operation * list, int value);
 	int (* pop) (struct list_operation * list);
-	int (* empty) (struct list_operation * list);
+	int (* is_empty) (struct list_operation * list);
 };
 
 

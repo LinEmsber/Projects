@@ -5,9 +5,10 @@
 #include "generic.h"
 #include "list.h"
 
-static void linked_list_push(list_operation_t * list_op, int value);
-static int linked_list_pop(list_operation_t * list_op);
-static int linked_list_empty(list_operation_t * list_op);
+/* declaration of function */
+static void linked_list_push(list_operation_t * l_op, int value);
+static int linked_list_pop(list_operation_t * l_op);
+static int linked_list_is_empty(list_operation_t * l_op);
 
 /* create and delete linked list */
 linked_list_t * linked_list_create()
@@ -19,7 +20,7 @@ linked_list_t * linked_list_create()
 	ll->head = NULL;
 	ll->list_op.push = linked_list_push;
 	ll->list_op.pop = linked_list_pop;
-	ll->list_op.empty = linked_list_empty;
+	ll->list_op.is_empty = linked_list_is_empty;
 
 	return ll;
 }
@@ -38,9 +39,9 @@ void linked_list_delete(linked_list_t * ll)
 
 
 /* operations of linked list */
-void linked_list_push(list_operation_t * list_op, int value)
+void linked_list_push(list_operation_t * l_op, int value)
 {
-        linked_list_t * ll = container_of(list_op, linked_list_t, list_op);
+        linked_list_t * ll = container_of(l_op, linked_list_t, list_op);
 
 	list_node_t ** node = &ll->head;
 	while(*node != NULL) {
@@ -54,9 +55,9 @@ void linked_list_push(list_operation_t * list_op, int value)
 	*node = n;
 }
 
-int linked_list_pop(list_operation_t * list_op)
+int linked_list_pop(list_operation_t * l_op)
 {
-        linked_list_t * ll = container_of(list_op, linked_list_t, list_op);
+        linked_list_t * ll = container_of(l_op, linked_list_t, list_op);
 	assert(ll->head != NULL);
 
 	list_node_t * tmp = ll->head;
@@ -68,8 +69,8 @@ int linked_list_pop(list_operation_t * list_op)
 	return value;
 }
 
-int linked_list_empty(list_operation_t * list_op)
+int linked_list_is_empty(list_operation_t * l_op)
 {
-        linked_list_t * ll = container_of(list_op, linked_list_t, list_op);
+        linked_list_t * ll = container_of(l_op, linked_list_t, list_op);
 	return ll->head == NULL;
 }
