@@ -7,78 +7,82 @@
 
 /* declaration of function */
 static void array_list_push(list_operation_t * l_op, int value);
-static int array_list_pop(list_operation_t * l_op);
+static int * array_list_pop(list_operation_t * l_op);
 static int array_list_is_empty(list_operation_t * l_op);
 
-static void array_list_resize(array_list_t *al, size_t size);
+static void array_list_resize(array_list_t *al, size_t capacity);
 
 
 /* create and delete array list */
-array_list_t * array_list_create(size_t size)
+array_list_t * array_list_create(size_t _capacity)
 {
-	if(size <= 0)
-		size = 1;
+	if(_capacity <= 0)
+		_capacity = 1;
 
-	array_list_t * al = (array_list_t*) malloc( sizeof(array_list_t) );
+	array_list_t * al = malloc( sizeof(* al) );
 	if(al  == NULL)
 		return NULL;
 
-	al->capacity = 0;
-	al->size = size;
+	al->used_size = 0;
+	al->capacity = _capacity;
 
-	al->data = (int*) malloc( sizeof(int) * size );
+	al->data = (int*) malloc( sizeof(int) * _capacity );
 
 	al->list_op.push = array_list_push;
-	al->list_op.pop = array_list_pop;
+	al->list_op.pop = (void * ) array_list_pop;
 	al->list_op.is_empty = array_list_is_empty;
 
 	return al;
 }
 
-void array_list_delete(array_list_t * al)
+void array_list_delete(array_list_t * _al)
 {
-	free(al->data);
-	free(al);
+	free(_al->data);
+	free(_al);
 }
 
 
 /* operations of array list */
-void array_list_push(list_operation_t *l_op, int elem)
+void array_list_push(list_operation_t * _al_op, int _value)
 {
-	array_list_t * al = container_of(l_op, array_list_t, list_op);
+	array_list_t * al = container_of(_al_op, array_list_t, list_op);
 
-	if(al->capacity == al->size)
-		array_list_resize(al, al->size << 1);
+	/* If the used_size of array list is full, create double capacity for it. */
+	if(al->used_size == al->capacity)
+		array_list_resize(al, al->capacity << 1);
 
-	al->data[al->capacity] = elem;
-        al->capacity++;
+	al->data[al->used_size] = _value;
+        al->used_size++;
 }
 
-int array_list_pop(list_operation_t *l_op)
+int * array_list_pop(list_operation_t * _al_op)
 {
-	array_list_t * al = container_of(l_op, array_list_t, list_op);
-        --al->capacity;
+	array_list_t * al = container_of(_al_op, array_list_t, list_op);
+        al->used_size--;
 
-	return al->data[al->capacity];
+	int * p = malloc(sizeof(int));
+	p = &al->data[al->used_size];
+
+	return p;
 }
 
-int array_list_is_empty(list_operation_t *l_op)
+int array_list_is_empty(list_operation_t * _al_op)
 {
-	array_list_t * al = container_of(l_op, array_list_t, list_op);
+	array_list_t * al = container_of(_al_op, array_list_t, list_op);
 
-	return al->capacity == 0;
+	return al->used_size == 0;
 }
 
-void array_list_resize(array_list_t * al, size_t size)
+void array_list_resize(array_list_t * _al, size_t _size)
 {
-	if(size <= al->size)
+	if(_size <= _al->capacity)
 		return ;
 
-	int * data = (int*) malloc( sizeof(int) * size );
+	int * data = (int*) malloc( sizeof(int) * _size );
 
-	memcpy(data, al->data, al->size * sizeof(int));
-	free(al->data);
+	memcpy(data, _al->data, _al->capacity * sizeof(int));
+	free(_al->data);
 
-	al->data = data;
-	al->size = size;
+	_al->data = data;
+	_al->capacity = _size;
 }

@@ -16,13 +16,13 @@ typedef struct list_operation list_operation_t;
 
 typedef struct array_list array_list_t;
 typedef struct linked_list linked_list_t;
-typedef struct list_node list_node_t;
+typedef struct node node_t;
 
 
 /* A structure includes all operations of array list or linked list */
 struct list_operation {
 	void (* push) (struct list_operation * list, int value);
-	int (* pop) (struct list_operation * list);
+	void * (* pop) (struct list_operation * list);
 	int (* is_empty) (struct list_operation * list);
 };
 
@@ -30,20 +30,20 @@ struct list_operation {
 /* array list */
 struct array_list {
 	int * data;
+	size_t used_size;
 	size_t capacity;
-	size_t size;
 	struct list_operation list_op;
 };
 
 
 /* linked list node and list */
-struct list_node {
+struct node {
 	int value;
-	struct list_node * next;
+	struct node * next;
 };
 
 struct linked_list {
-	struct list_node * head;
+	struct node * head;
 	struct list_operation list_op;
 };
 
@@ -53,7 +53,7 @@ struct linked_list {
  */
 
  /* array list */
-extern array_list_t * array_list_create(size_t size);
+extern array_list_t * array_list_create(size_t _capacity);
 extern void array_list_delete(array_list_t * array_list);
 
 /* linked list node and list */

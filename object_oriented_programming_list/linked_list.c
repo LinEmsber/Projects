@@ -7,70 +7,69 @@
 
 /* declaration of function */
 static void linked_list_push(list_operation_t * l_op, int value);
-static int linked_list_pop(list_operation_t * l_op);
+static node_t * linked_list_pop(list_operation_t * _ll_op);
 static int linked_list_is_empty(list_operation_t * l_op);
 
 /* create and delete linked list */
 linked_list_t * linked_list_create()
 {
-	linked_list_t * ll = (linked_list_t *) malloc( sizeof(linked_list_t) );
+	linked_list_t * ll = malloc( sizeof(* ll) );
 	if(ll == NULL)
 		return NULL;
 
 	ll->head = NULL;
 	ll->list_op.push = linked_list_push;
-	ll->list_op.pop = linked_list_pop;
+	ll->list_op.pop = (void * )linked_list_pop;
 	ll->list_op.is_empty = linked_list_is_empty;
 
 	return ll;
 }
 
-void linked_list_delete(linked_list_t * ll)
+void linked_list_delete(linked_list_t * _ll)
 {
-	list_node_t * tmp = ll->head;
+	node_t * tmp = _ll->head;
 
-	while(ll->head != NULL){
-		ll->head = tmp->next;
+	while(_ll->head != NULL){
+		_ll->head = tmp->next;
 		free(tmp);
 	}
 
-	free(ll);
+	free(_ll);
 }
 
 
 /* operations of linked list */
-void linked_list_push(list_operation_t * l_op, int value)
+void linked_list_push(list_operation_t * _ll_op, int _value)
 {
-        linked_list_t * ll = container_of(l_op, linked_list_t, list_op);
+        linked_list_t * ll = container_of(_ll_op, linked_list_t, list_op);
 
-	list_node_t ** node = &ll->head;
+	node_t ** node = &ll->head;
 	while(*node != NULL) {
 		node = &(*node)->next;
 	}
 
-	list_node_t * n = (list_node_t *) malloc( sizeof(list_node_t) );
-	n->value = value;
+	node_t * n = malloc( sizeof(* n) );
+	n->value = _value;
 	n->next = NULL;
 
 	*node = n;
 }
 
-int linked_list_pop(list_operation_t * l_op)
+node_t * linked_list_pop(list_operation_t * _ll_op)
 {
-        linked_list_t * ll = container_of(l_op, linked_list_t, list_op);
+        linked_list_t * ll = container_of(_ll_op, linked_list_t, list_op);
 	assert(ll->head != NULL);
 
-	list_node_t * tmp = ll->head;
-	ll->head = tmp->next;
+	node_t * current = ll->head;
+	ll->head = ll->head->next;
 
-	int value = tmp->value;
-	free(tmp);
+	current->next = NULL;
 
-	return value;
+	return current;
 }
 
-int linked_list_is_empty(list_operation_t * l_op)
+int linked_list_is_empty(list_operation_t * _ll_op)
 {
-        linked_list_t * ll = container_of(l_op, linked_list_t, list_op);
+        linked_list_t * ll = container_of(_ll_op, linked_list_t, list_op);
 	return ll->head == NULL;
 }
