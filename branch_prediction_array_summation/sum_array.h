@@ -7,8 +7,8 @@
 
 
 /* functions */
-int sum_array_simplest(int * array, int length);
-int sum_array_unroll(int * array, int length);
-int sum_array_duffs_device(int * array, int length);
+long sum_array_simplest(int * array, int length);
+long sum_array_unroll(int * array, int length);
+long sum_array_duffs_device(int * array, int length);
 
 #endif
