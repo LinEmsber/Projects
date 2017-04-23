@@ -10,11 +10,14 @@
 #include "generic.h"
 
 // the length of array
-#define RAND_NUMS 100
+#define RAND_NUMS 10033
 
 // how many times to add array
+#ifdef __DEBUG
+#define RUN_TIMES 1
+#else
 #define RUN_TIMES 1000000
-
+#endif
 
 /* global variables */
 int sum_simplest = 0;
