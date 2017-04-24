@@ -16,8 +16,8 @@
 
 int main()
 {
-        // int i;
-        // void * tmp_n;
+        int i;
+        void * tmp_n;
 
         // /* array list */
         // array_list_t * array_list_entry = array_list_create(0);
@@ -51,9 +51,38 @@ int main()
 	// linked_list_delete(linked_list_entry);
 
 
-        /* queue */
-        linked_queue_t * linked_queue_entry = linked_queue_create();
-        linked_queue_delete(linked_queue_entry);
+        // /* queue */
+        // linked_queue_t * linked_queue_entry = linked_queue_create();
+        // printf("linked_queue_is_empty(linked_queue_entry): %d\n", linked_queue_entry->queue_op.is_empty(&linked_queue_entry->queue_op));
+        //
+        // for(i = 0; i < LOOP_NUMS; ++i)
+	// 	linked_queue_entry->queue_op.add(&linked_queue_entry->queue_op, i);
+        //
+        // printf("linked_queue_is_empty(linked_queue_entry): %d\n", linked_queue_entry->queue_op.is_empty(&linked_queue_entry->queue_op));
+        //
+	// for(i = 0; i < LOOP_NUMS; ++i){
+        //         tmp_n = linked_queue_entry->queue_op.remove(&linked_queue_entry->queue_op);
+        //         printf("tmp_n->value: %d\n", ( (node_t *) tmp_n )->value);
+        //         free(tmp_n);
+        // }
+        // linked_queue_delete(linked_queue_entry);
+
+
+        /* blocking queue */
+        blocking_queue_t * blocking_queue_entry = blocking_queue_create();
+        printf("blocking_queue_is_empty(blocking_queue_entry): %d\n", blocking_queue_entry->blocking_queue_op.is_empty(&blocking_queue_entry->blocking_queue_op));
+
+        for(i = 0; i < LOOP_NUMS; ++i)
+                blocking_queue_entry->blocking_queue_op.add(&blocking_queue_entry->blocking_queue_op, i);
+
+        printf("blocking_queue_is_empty(blocking_queue_entry): %d\n", blocking_queue_entry->blocking_queue_op.is_empty(&blocking_queue_entry->blocking_queue_op));
+
+        for(i = 0; i < LOOP_NUMS; ++i){
+                tmp_n = blocking_queue_entry->blocking_queue_op.remove(&blocking_queue_entry->blocking_queue_op);
+                printf("tmp_n->value: %d\n", ( (node_t *) tmp_n )->value);
+                free(tmp_n);
+        }
+        blocking_queue_delete(blocking_queue_entry);
 
 	return 0;
 }
