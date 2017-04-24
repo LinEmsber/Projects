@@ -21,9 +21,9 @@ typedef struct node node_t;
 
 /* A structure includes all operations of array list or linked list */
 struct list_operation {
-	void (* push) (struct list_operation * list, int value);
-	void * (* pop) (struct list_operation * list);
-	int (* is_empty) (struct list_operation * list);
+	void (* push) (struct list_operation * list_op, int value);
+	void * (* pop) (struct list_operation * list_op);
+	int (* is_empty) (struct list_operation * list_op);
 };
 
 
