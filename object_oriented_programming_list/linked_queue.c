@@ -9,13 +9,13 @@ static void linked_queue_add(queue_operation_t * queue, int value);
 static node_t * linked_queue_remove(queue_operation_t * queue);
 static int linked_queue_is_empty(queue_operation_t * queue);
 
-linked_queue_t * linked_queue_operation_create(list_operation_t * _list)
+linked_queue_t * linked_queue_operation_create(list_operation_t * _list_op)
 {
 	linked_queue_t * lq = malloc( sizeof(*lq) );
 	if(lq == NULL)
 		return NULL;
 
-	lq->list_op = _list;
+	lq->list_op = _list_op;
 
 	lq->queue_op.add = linked_queue_add;
 	lq->queue_op.remove = (void *)linked_queue_remove;
