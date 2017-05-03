@@ -22,7 +22,7 @@ volatile char turn    = 0;
 pthread_mutex_t mutex;
 #endif
 
-#define BIG_NUM 5000000000
+#define BIG_NUM 100000000
 volatile long  global_value = 0;
 
 static void * calc(void * arg)
@@ -53,7 +53,7 @@ static void * calc(void * arg)
 	}
 
 #ifdef _D
-//	mb();
+	mb();
 	turn = other;
 	flag[self] = false;
 #elif _P
@@ -107,9 +107,9 @@ int main()
 
 	clock_gettime(CLOCK_REALTIME, &end);
 
-	printf("%lu\n", global_value);
+	printf("\tglobal_value: %lu\n", global_value);
 
         time_diff = time_diff_in_second(start, end);
-        printf("time difference in sencond: %lf\n", time_diff);
+        printf("\ttime difference in sencond: %lf\n", time_diff);
 	return 0;
 }
