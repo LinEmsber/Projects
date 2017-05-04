@@ -60,38 +60,26 @@ void d_unlock(int _self, int _other)
 
 void p_lock_init()
 {
-	/* Initialize lock by reseting the desire of both the threads to acquire the locks.
-	 * And, giving turn to one of them.
-	 */
 	flag[0] = flag[1] = 0;
 	turn = 0;
 }
 
 void p_lock(int self)
 {
-	/* Set flag[self] = 1 saying you want to acquire lock. */
 	flag[self] = 1;
-
-	/* However, first give the other thread the chance to acquire lock. */
 	turn = 1-self;
 
-	/* Wait until the other thread looses the desirei to acquire lock,
-	 * or it is your turn to get the lock.
-	 */
 	while ( flag[ 1 - self ] == 1 && turn == 1 - self );
 }
 
 void p_unlock(int self)
 {
-	/* You do not desire to acquire lock in future.
-	 * This will allow the other thread to acquire the lock.
-	 */
 	flag[self] = 0;
 }
 
 
 
-void * calc(void * arg)
+void * calculate(void * arg)
 {
 	long countdown = BIG_NUM;
 
@@ -106,16 +94,14 @@ void * calc(void * arg)
 
 #elif _PTHREAD
 	pthread_mutex_lock(&mutex);
+
 #endif
 
-
-	/* critical section */
 	while( countdown > 0 ) {
+	/* critical section */
 		countdown--;
 		global_value++;
 	}
-
-
 
 #ifdef _D
 	d_unlock(self, other);
@@ -168,15 +154,16 @@ int main()
 
         clock_gettime(CLOCK_REALTIME, &start);
 
-	pthread_create(&thread[0], NULL, &calc, (void *) input_1);
-	pthread_create(&thread[1], NULL, &calc, (void *) input_2);
+	pthread_create(&thread[0], NULL, &calculate, (void *) input_1);
+	pthread_create(&thread[1], NULL, &calculate, (void *) input_2);
 
 	pthread_join(thread[0], NULL);
 	pthread_join(thread[1], NULL);
 
 	clock_gettime(CLOCK_REALTIME, &end);
 
-	printf("\tglobal_value: %lu\n", global_value);
+	printf("\texcepted global value: %d\t", BIG_NUM + BIG_NUM);
+	printf("\tcalculated global value: %lu\t", global_value);
 
         time_diff = time_diff_in_second(start, end);
         printf("\ttime difference in sencond: %lf\n", time_diff);

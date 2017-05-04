@@ -1,25 +1,35 @@
 #/bin/bash
 
-echo "\n================================"
-echo "gcc -O0 with Peterson's algorithm"
+echo "\n========== gcc -O0 =========="
+echo "Peterson's algorithm"
 gcc -O0 -Wall -D_P -pthread mutex_lock_test.c && ./a.out
-echo "gcc -O0 with Dekker's algorithm"
+echo "Dekker's algorithm"
 gcc -O0 -Wall -D_D -pthread mutex_lock_test.c && ./a.out
+echo "pthread_mutex_lock"
+gcc -O0 -Wall -D_PTHREAD -pthread mutex_lock_test.c && ./a.out
 
-echo "clang -O0 with Peterson's algorithm"
+echo "\n========== clang -O0 =========="
+echo "Peterson's algorithm"
 clang -O0 -Wall -D_P -pthread mutex_lock_test.c && ./a.out
-echo "clang -O0 with Dekker's algorithm"
+echo "Dekker's algorithm"
 clang -O0 -Wall -D_D -pthread mutex_lock_test.c && ./a.out
+echo "pthread_mutex_lock"
+clang -O0 -Wall -D_PTHREAD -pthread mutex_lock_test.c && ./a.out
 
-echo "\n================================"
-echo "gcc with Peterson's algorithm"
+echo "\n========== gcc -Ofast =========="
+echo "Peterson's algorithm"
 gcc -Ofast -Wall -D_P -pthread mutex_lock_test.c && ./a.out
-echo "gcc with Dekker's algorithm"
+echo "Dekker's algorithm"
 gcc -Ofast -Wall -D_D -pthread mutex_lock_test.c && ./a.out
+echo "pthread_mutex_lock"
+gcc -Ofast -Wall -D_PTHREAD -pthread mutex_lock_test.c && ./a.out
 
-echo "clang with Peterson's algorithm"
+echo "\n========== clang -Ofast =========="
+echo "Peterson's algorithm"
 clang -Ofast -Wall -D_P -pthread mutex_lock_test.c && ./a.out
-echo "clang with Dekker's algorithm"
+echo "Dekker's algorithm"
 clang -Ofast -Wall -D_D -pthread mutex_lock_test.c && ./a.out
+echo "pthread_mutex_lock"
+clang -Ofast -Wall -D_PTHREAD -pthread mutex_lock_test.c && ./a.out
 
 echo "\n"
