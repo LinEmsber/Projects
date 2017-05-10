@@ -60,8 +60,7 @@ int * array_list_pop(list_operation_t * _al_op)
 	array_list_t * al = container_of(_al_op, array_list_t, list_op);
         al->used_size--;
 
-	int * p = malloc(sizeof(int));
-	p = &al->data[al->used_size];
+	int * p = &al->data[al->used_size];
 
 	return p;
 }

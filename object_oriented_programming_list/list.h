@@ -27,15 +27,6 @@ struct list_operation {
 };
 
 
-/* array list */
-struct array_list {
-	int * data;
-	size_t used_size;
-	size_t capacity;
-	struct list_operation list_op;
-};
-
-
 /* linked list node and list */
 struct node {
 	int value;
@@ -46,6 +37,15 @@ struct linked_list {
 	struct node * head;
 	struct list_operation list_op;
 };
+
+/* array list */
+struct array_list {
+        int * data;
+        size_t used_size;
+        size_t capacity;
+        struct list_operation list_op;
+};
+
 
 /* function
  * Only shows the functions which are creation or deletion of array list and linked list,
