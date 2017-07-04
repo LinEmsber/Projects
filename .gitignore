@@ -35,3 +35,6 @@ main
 
 # perf
 perf.data*
+
+# valgrind
+*.out.*
