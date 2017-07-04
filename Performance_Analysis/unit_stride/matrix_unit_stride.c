@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define RUN_TIMES 100000
+#define RUN_TIMES 1000
 #define MATRIX_LEN 1000
 
 int main()
