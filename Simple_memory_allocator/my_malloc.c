@@ -5,7 +5,11 @@
 
 #include "my_malloc.h"
 
-/* A global pointer points to the first allocate node.
+
+#define __ALIGN(x, a)		__ALIGN_MASK(x, (typeof(x))(a) - 1)
+#define __ALIGN_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+
+/* A global pointer points to a (the first) allocate node.
  * We can traversal this node to find the target node.
  */
 list_t * g_list;
@@ -21,7 +25,8 @@ void * my_malloc(size_t size)
 	/* memory align
 	 * TODO: use a better method.
 	 */
-	size = (size - 1) / 4 * 4 + 4;
+	// size = (size - 1) / 4 * 4 + 4;
+	size = __ALIGN(size, 4);
 	addr = find_block(size);
 
 	if (addr != NULL) {
@@ -137,19 +142,29 @@ void my_free(void * ptr)
 	if (is_in_list(ptr) == 1)
 		return ;
 
+	/* The argument, ptr, is a pointer point to the node contain the address of the allocated memory.
+	 * And this node must not be the head node.
+	 * But we need to obtain the structure which is contain this pointer.
+	 * TODO: try to use container_of()
+	 */
 	while (ptr != g_list->addr && g_list->head != 1)
 		g_list = g_list->next;
 
+	/* If we try to free a memory is UNUSED, return the function. */
 	if (g_list->is_used == UNUSED)
 		return ;
 
+	/* Tag this node as UNUSED, and start to free it. */
 	g_list->is_used = UNUSED;
+
+	/* Check this node is not the head node, and the next node is UNUSED and is not itself. */
 	if (g_list->head != 1) {
 		if (g_list->next->is_used == UNUSED && g_list->next->addr != g_list->addr) {
 			if (g_list->addr > g_list->next->addr) {
 				g_list->addr = g_list->next->addr;
 			}
 
+			/* Combine the freed node to the next node. */
 			g_list->head = g_list->next->head;
 			g_list->size += g_list->next->size;
 			g_list->next = g_list->next->next;
@@ -232,12 +247,17 @@ int main()
 	int * p_1 = my_malloc( sizeof(int) * 4 );
 	int * p_2 = my_malloc( sizeof(int) * 10 );
 	int * p_3 = my_malloc( sizeof(char) * 25 );
-        int * p_4 = my_malloc( sizeof(int) * 10 );
-        int * p_5 = my_malloc( sizeof(int) * 10 );
+        // int * p_4 = my_malloc( sizeof(int) * 10 );
+        // int * p_5 = my_malloc( sizeof(int) * 10 );
+	int * p_6;
+	int * p_7;
 
-	// my_free(p_1);
-	// my_free(p_2);
-	// my_free(p_3);
+	my_free(p_1);
+	my_free(p_2);
+	my_free(p_3);
+
+	p_6 = (int *) my_malloc( sizeof(int) * 8 );
+	p_7 = (int *) my_malloc( sizeof(int) * 4 );
 
 	return 0;
 }
