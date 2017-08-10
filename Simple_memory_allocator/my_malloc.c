@@ -79,32 +79,41 @@ void * find_block(size_t size)
 	return NULL;
 }
 
-void * my_realloc(void * ptr, size_t size)
+void * my_realloc(void * ptr, size_t new_size)
 {
-	void * cpy;
-	size_t ptr_size;
+	void * copy_ptr;
+	size_t original_size;
 
-	if (size == 0 && ptr != NULL) {
+	/* If the reallocate size is zero, it means free this ptr. */
+	if (new_size == 0 && ptr != NULL) {
 		my_free(ptr);
 		return ptr;
 	}
-	else if (ptr == NULL || is_in_list(ptr) == 1){
-		ptr = my_malloc(size);
 
-	} else {
-		ptr_size = get_size(ptr);
-		if (ptr_size == size)
+	/* If this ptr is not allocated any memory, just use my_malloc(). */
+	else if (ptr == NULL || is_in_list(ptr) == 1){
+		ptr = my_malloc(new_size);
+
+	}
+
+	else {
+		/* The same memory size want to allocate. */
+		original_size = get_size(ptr);
+		if (original_size == new_size)
 			return ptr;
 
-		cpy = my_malloc(size);
+		/* Allocate another memory for new size. */
+		copy_ptr = my_malloc(size);
 
-		if (size < ptr_size)
-			memcpy(cpy, ptr, size);
+		/* Copy the old data to the new allocated memory. */
+		if (new_size < original_size)
+			memcpy(copy_ptr, ptr, new_size);
 		else
-			memcpy(cpy, ptr, ptr_size);
+			memcpy(copy_ptr, ptr, original_size);
 
+		/* Free the original ptr. */
 		my_free(ptr);
-		return cpy;
+		return copy_ptr;
 	}
 
 	return ptr;
