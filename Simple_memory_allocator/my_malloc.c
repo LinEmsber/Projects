@@ -103,7 +103,7 @@ void * my_realloc(void * ptr, size_t new_size)
 			return ptr;
 
 		/* Allocate another memory for new size. */
-		copy_ptr = my_malloc(size);
+		copy_ptr = my_malloc(new_size);
 
 		/* Copy the old data to the new allocated memory. */
 		if (new_size < original_size)
@@ -249,24 +249,4 @@ void re_init_list()
 		g_list = g_list->next;
 
 	g_list = g_list->next;
-}
-
-int main()
-{
-	int * p_1 = my_malloc( sizeof(int) * 4 );
-	int * p_2 = my_malloc( sizeof(int) * 10 );
-	int * p_3 = my_malloc( sizeof(char) * 25 );
-        // int * p_4 = my_malloc( sizeof(int) * 10 );
-        // int * p_5 = my_malloc( sizeof(int) * 10 );
-	int * p_6;
-	int * p_7;
-
-	my_free(p_1);
-	my_free(p_2);
-	my_free(p_3);
-
-	p_6 = (int *) my_malloc( sizeof(int) * 8 );
-	p_7 = (int *) my_malloc( sizeof(int) * 4 );
-
-	return 0;
 }

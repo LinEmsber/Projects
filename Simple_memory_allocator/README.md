@@ -3,10 +3,18 @@
 ## Introduction
 
 Use Linux system call brk() and sbrk() to make a simple memory allocator.
+All block is linked with a doubly linked list.
 
-## Concept
+## How to run
 
-### Structure
+Normal run:
+> gcc -Wall list.c my_malloc.c && ./a.out
+
+Valgrind check memory leakage:
+> gcc -Wall list.c my_malloc.c && valgrind -v ./a.out
+
+## Structure
+
 ```c
 struct list_s{
 	size_t size;
@@ -18,7 +26,7 @@ struct list_s{
 };
 ```
 
-### Function
+## Function
 
 ```c
 void * my_malloc(size_t size);
@@ -41,4 +49,4 @@ void re_init_list();
 ```
 
 ## References
-[malloc-free-realloc-using-brk-and-sbrk](https://codereview.stackexchange.com/questions/80190/malloc-free-realloc-using-brk-and-sbrk)
+ - [malloc-free-realloc-using-brk-and-sbrk](https://codereview.stackexchange.com/questions/80190/malloc-free-realloc-using-brk-and-sbrk)
