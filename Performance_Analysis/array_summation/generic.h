@@ -13,5 +13,6 @@ int * rn_arr_gen( int len , int start, int end);
 void print_arr(int *arr, int len);
 double time_diff_in_second(struct timespec t1, struct timespec t2);
 void quick_sort( int v[], int left, int right);
+void merge_sort(int * arr, int len);
 
 #endif

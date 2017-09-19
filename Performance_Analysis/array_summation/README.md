@@ -4,6 +4,12 @@ Using Gprof or perf to conduct an analysis of array summation.
 We use different summation algorithms to compare the resources use.
 
 ## Usage and explanation:
+ 1. Run the compilation program.
+> make
+ 2. Test the algorithem.
+> make test
+ 3. Use valgrind to detect error and memory leakage.
+> make check
 
 ### Gprof:
 
@@ -50,6 +56,16 @@ $! is the PID of the most recent background command.
 
 ```bash
 > gcc -O0 -Wall -pg main.c sum_array.c generic.c && ./a.out & sudo perf top -p $!
+```
+
+## Result
+
+We run the program, and the result as follows:
+
+```bash
+Simplest summation, time difference in sencond: 3.420176
+Loop unrolling, time difference in sencond: 3.059372
+Duff's device, time difference in sencond: 3.093178
 ```
 
 ## TODO:

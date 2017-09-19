@@ -1,35 +1,38 @@
 # EXEC of executable
 EXEC = main
 
-# compiler to use
+# Compiler to use
 CC ?= gcc
 
-# compiler flags and options
+# Compiler flags and options
 CFLAGS_common = -Wall -std=gnu99
 CFLAGS_opt  = -O0
 CFLAGS_debug = -g -D__DEBUG
 
-# source files
+# Source files
 SRCS = main.c
 SRCS_LIB = sum_array.c generic.c
 
 .PHONY: all
 all: $(EXEC)
 
-# test the algorithem
-test: $(SRCS_LIB)
-	$(CC) $(CFLAGS_common) $(CFLAGS_opt) $(CFLAGS_debug) $(SRCS_LIB) main.c -o main
-
-# run the compilation
+# Run the compilation program.
 $(EXEC): $(SRCS_LIB)
 	$(CC) $(CFLAGS_common) $(CFLAGS_opt) $(SRCS_LIB) $@.c -o $@
+	./main
 
-# using valgrind to test execute, main.
-.PHONY: run
-run: $(EXEC)
+# Test the algorithem.
+.PHONY: test
+test: $(SRCS_LIB)
+	$(CC) $(CFLAGS_common) $(CFLAGS_opt) $(CFLAGS_debug) $(SRCS_LIB) main.c -o main
+	./main
+
+# Use valgrind to detect error and memory leakage.
+.PHONY: check
+check: $(EXEC)
 	valgrind --leak-check=yes -v ./main
 
-# clean
+# Clean
 .PHONY: clean
 clean:
 	$(RM) $(EXEC) *.o
