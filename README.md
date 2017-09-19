@@ -20,3 +20,6 @@
  - branchless condition
  - jump talbe
  - unit stride
+
+### Simple Memory Allocator
+ - An implementation of malloc() with linux system call: brk() and sbrk().
