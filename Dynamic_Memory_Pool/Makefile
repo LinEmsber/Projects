@@ -1,32 +1,32 @@
 # EXEC of executable
 EXEC = main
 
-# compiler to use
+# Compiler to use
 CC ?= gcc
 
-# compiler flags and options
+# Compiler flags and options
 CFLAGS_common = -Wall -std=gnu99
 CFLAGS_DEBUG = -g
 CFLAGS_opt  = -O0
 
-# source files
+# Source files
 SRCS = main.c
 SRCS_LIB = mem_pool.c generic.c
 
 .PHONY: all
 all: $(EXEC)
 
-# run the compilation
+# Run the program
 $(EXEC): $(SRCS_LIB)
 	$(CC) $(CFLAGS_common) $(CFLAGS_opt) $(CFLAGS_DEBUG) \
 	$(SRCS_LIB) $@.c -o $@
+	./main
 
-# using valgrind to test execute, main.
-.PHONY: test
-run: $(EXEC)
+# Use valgrind to detect error and memory leakage.
+.PHONY: check
+check: $(EXEC)
 	valgrind --leak-check=yes -v ./main
-
-# clean
+# Clean
 .PHONY: clean
 clean:
 	$(RM) $(EXEC) *.o

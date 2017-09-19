@@ -19,9 +19,9 @@ int main()
 	int ret;
 	mem_pool_t * mp_entry;
 
-	mem_block_t *p_0;
-	mem_block_t *p_1;
-	mem_block_t *p_2;
+	mem_block_t * p_0;
+	mem_block_t * p_1;
+	mem_block_t * p_2;
 
 	// TODO: use this memory pool to implement a signly linked list.
 
