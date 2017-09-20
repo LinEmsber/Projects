@@ -1,10 +1,3 @@
-/* branch prediction
- *
- * References:
- * http://stackoverflow.com/questions/11227809/why-is-it-faster-to-process-a-sorted-array_original-than-an-unsorted-array_original
- * https://www.collabora.com/news-and-blog/blog/2017/03/21/performance-analysis-in-linux/
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -126,8 +119,6 @@ int main()
 	printf("CMOV with sorting\n");
 	printf("\ttime difference in second: %lf\n", time_diff_comvge_sort);
 	printf("\tsum: %lld\n", total_sum_comvge_sort);
-
-
 
 	return 0;
 }

@@ -13,10 +13,15 @@ optimization for compilation time (default)
 optimization more for code size and execution time
 > gcc -O2 -Wall -g  main.c sum.c generic.c && ./a.out
 
-### output the assembly code:
-> gcc -O2 -c sum.c
+### Output the assembly code:
 
+Use GCC:
+> gcc -O2 -c sum.c
 > gcc -O0 -c sum.c
+
+Use perf:
+> gcc -O2 -Wall -g main.c sum.c generic.c && sudo perf record ./a.out
+> sudo perf report
 
 ## Function source code in C
 
@@ -61,82 +66,130 @@ int sum_array_cmov(int * array, size_t size)
 }
 ```
 
-## Function in assembly
+## Function in assembly with -O0
 
-sum_array_normal():
-```assembly
-.L4:
-	movl	-8(%rbp), %eax
-	leaq	0(,%rax,4), %rdx
-	movq	-24(%rbp), %rax
-	addq	%rdx, %rax
-	movl	(%rax), %eax
-	cmpl	$127, %eax
-	jle	.L3
-	movl	-8(%rbp), %eax
-	leaq	0(,%rax,4), %rdx
-	movq	-24(%rbp), %rax
-	addq	%rdx, %rax
-	movl	(%rax), %eax
-	addl	%eax, -4(%rbp)
-.L3:
-	addl	$1, -8(%rbp)
-.L2:
-	movl	-8(%rbp), %eax
-	cmpq	-32(%rbp), %rax
-	jb	.L4
+### sum_array_normal():
+
+```c
+if (array[i] >= 128){
+        sum += array[i];
+}
 ```
 
-sum_array_bitwise():
-
 ```assembly
-.L8:
-	movl	-8(%rbp), %eax
-	leaq	0(,%rax,4), %rdx
-	movq	-24(%rbp), %rax
-	addq	%rdx, %rax
-	movl	(%rax), %eax
-	addl	$-128, %eax
-	notl	%eax
-	cltd
-	movl	-8(%rbp), %eax
-	leaq	0(,%rax,4), %rcx
-	movq	-24(%rbp), %rax
-	addq	%rcx, %rax
-	movl	(%rax), %eax
-	andl	%edx, %eax
-	addl	%eax, -4(%rbp)
-	addl	$1, -8(%rbp)
+1.49  │1c:   mov    -0x8(%rbp),%eax
+0.52  │      lea    0x0(,%rax,4),%rdx
+0.03  │      mov    -0x18(%rbp),%rax
+5.27  │      add    %rdx,%rax
+27.24 │      mov    (%rax),%eax
+2.55  │      cmp    $0x7f,%eax
+3.07  │    ↓ jle    4c
+17.08 │      mov    -0x8(%rbp),%eax
+1.44  │      lea    0x0(,%rax,4),%rdx
+0.22  │      mov    -0x18(%rbp),%rax
+2.87  │      add    %rdx,%rax
+4.69  │      mov    (%rax),%eax
+6.22  │      add    %eax,-0x4(%rbp)
 
 ```
 
-sum_array_cmov():
+### sum_array_bitwise():
+
+```c
+sum += ~(array[i] - 128) >> 31 & array[i];
+```
 
 ```assembly
-.L14:
-	movl	-8(%rbp), %eax
-	leaq	0(,%rax,4), %rdx
-	movq	-24(%rbp), %rax
-	addq	%rdx, %rax
-	movl	(%rax), %eax
-	cmpl	$127, %eax
-	jle	.L12
-	movl	-8(%rbp), %eax
-	leaq	0(,%rax,4), %rdx
-	movq	-24(%rbp), %rax
-	addq	%rdx, %rax
-	movl	(%rax), %eax
-	jmp	.L13
-.L12:
-	movl	$0, %eax
-.L13:
-	addl	%eax, -4(%rbp)
-	addl	$1, -8(%rbp)
-.L11:
-	movl	-8(%rbp), %eax
-	cmpq	-32(%rbp), %rax
-	jb	.L14
+0.02  │1c:   mov    -0x8(%rbp),%eax                                  
+      │      lea    0x0(,%rax,4),%rdx                                
+      │      mov    -0x18(%rbp),%rax                                 
+11.85 │      add    %rdx,%rax                                        
+8.88  │      mov    (%rax),%eax                                      
+5.28  │      add    $0xffffff80,%eax                                 
+6.64  │      not    %eax                                             
+12.22 │      cltd                                                    
+0.02  │      mov    -0x8(%rbp),%eax                                  
+      │      lea    0x0(,%rax,4),%rcx                                
+      │      mov    -0x18(%rbp),%rax                                 
+12.60 │      add    %rcx,%rax                                        
+0.10  │      mov    (%rax),%eax                                      
+0.25  │      and    %edx,%eax                                        
+30.31 │      add    %eax,-0x4(%rbp)                                  
 ```
+
+### sum_array_cmov():
+
+```c
+sum += (array[i] >= 128) ? array[i] : 0;
+```
+
+```assembly
+1.95  │1c:   mov    -0x8(%rbp),%eax                                
+0.23  │      lea    0x0(,%rax,4),%rdx                              
+0.02  │      mov    -0x18(%rbp),%rax                               
+4.19  │      add    %rdx,%rax                                      
+26.64 │      mov    (%rax),%eax                                    
+2.06  │      cmp    $0x7f,%eax                                     
+3.27  │    ↓ jle    4b                                             
+14.50 │      mov    -0x8(%rbp),%eax                                
+1.89  │      lea    0x0(,%rax,4),%rdx                              
+0.02  │      mov    -0x18(%rbp),%rax                               
+2.07  │      add    %rdx,%rax                                      
+3.93  │      mov    (%rax),%eax                                    
+0.80  │    ↓ jmp    50                                             
+11.30 │4b:   mov    $0x0,%eax                                      
+13.15 │50:   add    %eax,-0x4(%rbp)                                
+```
+
+## Function in assembly with -O2
+
+### sum_array_normal():
+
+```c
+if (array[i] >= 128){
+        sum += array[i];
+}
+```
+
+```assembly
+      │      xor    %r8d,%r8d
+      │      xchg   %ax,%ax
+10.11 │10:   mov    (%rdi,%rdx,4),%edx
+9.01  │      cmp    $0x7f,%edx
+25.27 │      cmovle %r8d,%edx
+13.35 │      add    %edx,%eax
+```
+
+### sum_array_bitwise():
+
+```c
+sum += ~(array[i] - 128) >> 31 & array[i];
+```
+
+```assembly
+1.42  │10:   mov    (%rdi,%rdx,4),%ecx
+16.55 │      lea    -0x80(%rcx),%edx
+0.49  │      not    %edx
+22.02 │      sar    $0x1f,%edx
+3.76  │      and    %ecx,%edx
+20.95 │      add    %edx,%eax
+```
+
+### sum_array_cmov():
+
+```c
+sum += (array[i] >= 128) ? array[i] : 0;
+```
+
+```assembly
+33.57 │10:   mov    (%rdi,%rcx,4),%ecx                   
+      │      lea    (%rax,%rcx,1),%r8d                   
+      │      add    $0xffffff80,%ecx                     
+      │      lea    0x1(%rdx),%ecx                       
+66.34 │      cmovge %r8d,%eax                            
+```
+
+
 ## Result
 
 optimization for compilation time (default)
