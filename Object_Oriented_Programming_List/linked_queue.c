@@ -46,7 +46,7 @@ void linked_queue_delete(linked_queue_t *_lq)
 }
 
 
-/* operation */
+/* Operations of linked queue. */
 void linked_queue_add(queue_operation_t * _lq_op, int _value)
 {
 	linked_queue_t * lq = container_of(_lq_op, linked_queue_t, queue_op);

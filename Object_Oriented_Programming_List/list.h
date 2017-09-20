@@ -19,7 +19,7 @@ typedef struct linked_list linked_list_t;
 typedef struct node node_t;
 
 
-/* A structure includes all operations of array list or linked list */
+/* A structure includes all operations of array list or linked list. */
 struct list_operation {
 	void (* push) (struct list_operation * list_op, int value);
 	void * (* pop) (struct list_operation * list_op);
@@ -27,7 +27,7 @@ struct list_operation {
 };
 
 
-/* linked list node and list */
+/* Linked list node and list. */
 struct node {
 	int value;
 	struct node * next;
@@ -38,7 +38,7 @@ struct linked_list {
 	struct list_operation list_op;
 };
 
-/* array list */
+/* Array list. */
 struct array_list {
         int * data;
         size_t used_size;
@@ -47,16 +47,17 @@ struct array_list {
 };
 
 
-/* function
+/* Functions
+ *
  * Only shows the functions which are creation or deletion of array list and linked list,
  * the really operations are encapsulated in the individual operations structures.
  */
 
- /* array list */
+ /* Array list */
 extern array_list_t * array_list_create(size_t _capacity);
 extern void array_list_delete(array_list_t * array_list);
 
-/* linked list node and list */
+/* Linked list node and list */
 extern linked_list_t * linked_list_create();
 extern void linked_list_delete(linked_list_t * linked_list);
 

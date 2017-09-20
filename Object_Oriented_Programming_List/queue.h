@@ -21,7 +21,7 @@ typedef struct linked_queue linked_queue_t;
 typedef struct blocking_queue blocking_queue_t;
 
 
-/* structure */
+/* Structure */
 struct queue_operation{
 	void (* add)(struct queue_operation * queue_op, int value);
 	void * (* remove)(struct queue_operation * queue_op);

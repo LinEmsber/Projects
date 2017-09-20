@@ -27,7 +27,7 @@ int main()
         void * tmp_n;
 
 
-        /* linked list */
+        /* Linked list. */
 	linked_list_t * linked_list_entry = linked_list_create();
 
 	for(i = 0; i < LOOP_NUMS; ++i)
@@ -44,7 +44,7 @@ int main()
 	linked_list_delete(linked_list_entry);
 
 
-        /* array list */
+        /* Array list. */
         array_list_t * array_list_entry = array_list_create(0);
 
         for(i = 0; i < LOOP_NUMS; ++i)
@@ -61,7 +61,7 @@ int main()
         array_list_delete(array_list_entry);
 
 
-        /* queue */
+        /* Queue. */
         linked_queue_t * linked_queue_entry = linked_queue_create();
         printf("linked_queue_is_empty(linked_queue_entry): %d\n", linked_queue_entry->queue_op.is_empty(&linked_queue_entry->queue_op));
 
@@ -79,7 +79,7 @@ int main()
         linked_queue_delete(linked_queue_entry);
 
 
-        /* blocking queue */
+        /* Blocking queue. */
         blocking_queue_t * blocking_queue_entry = blocking_queue_create();
         printf("blocking_queue_is_empty(blocking_queue_entry): %d\n", blocking_queue_entry->blocking_queue_op.is_empty(&blocking_queue_entry->blocking_queue_op));
 

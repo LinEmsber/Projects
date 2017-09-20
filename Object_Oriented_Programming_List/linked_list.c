@@ -38,7 +38,7 @@ void linked_list_delete(linked_list_t * _ll)
 }
 
 
-/* operations of linked list */
+/* Operations of linked list. */
 void linked_list_push(list_operation_t * _ll_op, int _value)
 {
         linked_list_t * ll = container_of(_ll_op, linked_list_t, list_op);

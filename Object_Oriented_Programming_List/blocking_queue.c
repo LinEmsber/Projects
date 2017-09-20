@@ -72,7 +72,7 @@ void blocking_queue_delete(blocking_queue_t * _bq)
 }
 
 
-/* operation */
+/* Operation of blocking queue. */
 void blocking_queue_add(queue_operation_t * _bq_op, int value)
 {
 	blocking_queue_t * bq = container_of(_bq_op, blocking_queue_t, blocking_queue_op);

@@ -5,7 +5,7 @@
 #include "generic.h"
 #include "list.h"
 
-/* declaration of function */
+/* Declaration of function. */
 static void array_list_push(list_operation_t * l_op, int value);
 static int * array_list_pop(list_operation_t * l_op);
 static int array_list_is_empty(list_operation_t * l_op);
@@ -13,7 +13,7 @@ static int array_list_is_empty(list_operation_t * l_op);
 static void array_list_resize(array_list_t *al, size_t capacity);
 
 
-/* create and delete array list */
+/* Create and delete array list. */
 array_list_t * array_list_create(size_t _capacity)
 {
 	if(_capacity <= 0)
@@ -42,7 +42,7 @@ void array_list_delete(array_list_t * _al)
 }
 
 
-/* operations of array list */
+/* Operations of array list. */
 void array_list_push(list_operation_t * _al_op, int _value)
 {
 	array_list_t * al = container_of(_al_op, array_list_t, list_op);
