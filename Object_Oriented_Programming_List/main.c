@@ -1,14 +1,3 @@
-/* main.c
- *
- * USAGE: gcc -Wall -g main.c array_list.c linked_list.c linked_queue.c blocking_queue.c && ./a.out
- *
- * MEMORY TEST: gcc -Wall -g main.c array_list.c linked_list.c linked_queue.c blocking_queue.c && valgrind -v ./a.out
- *
- * GPROF: gcc -Wall -pg -g main.c array_list.c linked_list.c linked_queue.c blocking_queue.c && ./a.out && gprof -b ./a.out
- *
- * PERF: gcc -Wall -pg -g main.c array_list.c linked_list.c linked_queue.c blocking_queue.c && ./a.out & sudo perf top -p $!
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +8,7 @@
 #include "list.h"
 #include "queue.h"
 
-#define LOOP_NUMS 1000
+#define LOOP_NUMS 100
 
 int main()
 {
@@ -35,7 +24,7 @@ int main()
 
 	for(i = 0; i < LOOP_NUMS; ++i){
                 tmp_n = linked_list_entry->list_op.pop(&linked_list_entry->list_op);
-                // printf("tmp_n->value: %d\n", ( (node_t *) tmp_n )->value);
+                printf("tmp_n->value: %d\n", ( (node_t *) tmp_n )->value);
                 free(tmp_n);
         }
 
@@ -52,8 +41,7 @@ int main()
 
         for(i = 0; i < LOOP_NUMS; ++i){
                 tmp_n = array_list_entry->list_op.pop(&array_list_entry->list_op);
-                // printf("tmp_n->value: %d, address: %p\n", *(int *) tmp_n, tmp_n);
-                // free(tmp_n);
+                printf("tmp_n->value: %d, address: %p\n", *(int *) tmp_n, tmp_n);
         }
 
         printf("is_empty: %d\n", array_list_entry->list_op.is_empty(&array_list_entry->list_op));
@@ -72,7 +60,7 @@ int main()
 
 	for(i = 0; i < LOOP_NUMS; ++i){
                 tmp_n = linked_queue_entry->queue_op.remove(&linked_queue_entry->queue_op);
-                // printf("tmp_n->value: %d\n", ( (node_t *) tmp_n )->value);
+                printf("tmp_n->value: %d\n", ( (node_t *) tmp_n )->value);
                 free(tmp_n);
         }
 
@@ -90,7 +78,7 @@ int main()
 
         for(i = 0; i < LOOP_NUMS; ++i){
                 tmp_n = blocking_queue_entry->blocking_queue_op.remove(&blocking_queue_entry->blocking_queue_op);
-                // printf("tmp_n->value: %d\n", ( (node_t *) tmp_n )->value);
+                printf("tmp_n->value: %d\n", ( (node_t *) tmp_n )->value);
                 free(tmp_n);
         }
 
