@@ -15,7 +15,6 @@
 
 #include <pthread.h>
 
-
 #define BIG_NUM 500000000
 
 long  global_value = 0;
@@ -27,13 +26,12 @@ int turn;
 pthread_mutex_t mutex;
 #endif
 
-/* functions of Dekker's lock */
+/* Functions of Dekker's lock. */
 void d_lock_init()
 {
 	flag[0] = flag[1] = 0;
 	turn = 0;
 }
-
 
 void d_lock(int _self, int _other)
 {
@@ -56,8 +54,7 @@ void d_unlock(int _self, int _other)
 
 
 
-/* functions of Peterson's lock */
-
+/* Functions of Peterson's lock. */
 void p_lock_init()
 {
 	flag[0] = flag[1] = 0;
@@ -78,7 +75,7 @@ void p_unlock(int self)
 }
 
 
-
+/* Calculate the summation in two threads. */
 void * calculate(void * arg)
 {
 	long countdown = BIG_NUM;
@@ -98,7 +95,7 @@ void * calculate(void * arg)
 #endif
 
 	while( countdown > 0 ) {
-	/* critical section */
+	/* Critical section */
 		countdown--;
 		global_value++;
 	}
@@ -149,8 +146,8 @@ int main()
 	input_1 = (int *) malloc( sizeof(int) );
 	input_2 = (int *) malloc( sizeof(int) );
 
-	* input_1 = 0;
-	* input_2 = 1;
+	*input_1 = 0;
+	*input_2 = 1;
 
         clock_gettime(CLOCK_REALTIME, &start);
 
@@ -162,11 +159,11 @@ int main()
 
 	clock_gettime(CLOCK_REALTIME, &end);
 
-	printf("\texcepted global value: %d\t", BIG_NUM + BIG_NUM);
-	printf("\tcalculated global value: %lu\t", global_value);
+	printf("\tExcepted global value: %d\t", BIG_NUM + BIG_NUM);
+	printf("Calculated global value: %lu\t", global_value);
 
         time_diff = time_diff_in_second(start, end);
-        printf("\ttime difference in sencond: %lf\n", time_diff);
+        printf("Time difference in sencond: %lf\n", time_diff);
 
 	return 0;
 }
