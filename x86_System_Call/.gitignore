@@ -1,0 +1,6 @@
+# Object files
+*.o
+
+# Executables
+*.out
+x86_syscall_hello_world
