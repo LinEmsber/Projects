@@ -13,17 +13,59 @@ $ sh compiler.sh
 $ objdump -xds ./main | less
 ```
   * Use objdump to list the related critical symbols, as follows:
-    * start address 0x08048450
-    * 080483e0 l    d  .init  00000000              .init
-    * 08048410 l    d  .plt   00000000              .plt
-    * 08048440 l    d  .plt.got       00000000              .plt.got
-    * 08049f04 l    d  .dynamic       00000000              .dynamic
-    * 08049ffc l    d  .got   00000000              .got
-    * 0804a000 l    d  .got.plt       00000000              .got.plt
-    * 0804a000 l     O .got.plt       00000000              _GLOBAL_OFFSET_TABLE_
-
-
-
+```
+start address 0x08048450
+...
+080483e0 l    d  .init  00000000              .init
+08048410 l    d  .plt   00000000              .plt
+08048440 l    d  .plt.got       00000000              .plt.got
+08049f04 l    d  .dynamic       00000000              .dynamic
+08049ffc l    d  .got   00000000              .got
+0804a000 l    d  .got.plt       00000000              .got.plt
+0804a000 l     O .got.plt       00000000              _GLOBAL_OFFSET_TABLE_
+...
+    Contents of section .got.plt:
+     804a000 049f0408 00000000 00000000 26840408
+     804a010 36840408                           
+...
+08048410 <lib_a_func_two@plt-0x10>:
+ 8048410:       ff 35 04 a0 04 08       pushl  0x804a004
+ 8048416:       ff 25 08 a0 04 08       jmp    *0x804a008
+ 804841c:       00 00                   add    %al,(%eax)
+...
+08048420 <lib_a_func_two@plt>:
+ 8048420:       ff 25 0c a0 04 08       jmp    *0x804a00c
+ 8048426:       68 00 00 00 00          push   $0x0
+ 804842b:       e9 e0 ff ff ff          jmp    8048410 <_init+0x30>
+...
+08048430 <__libc_start_main@plt>:
+ 8048430:       ff 25 10 a0 04 08       jmp    *0x804a010
+ 8048436:       68 08 00 00 00          push   $0x8
+ 804843b:       e9 d0 ff ff ff          jmp    8048410 <_init+0x30>
+...
+08048450 <_start>:
+ 8048450:       31 ed                   xor    %ebp,%ebp
+ 8048452:       5e                      pop    %esi
+ 8048453:       89 e1                   mov    %esp,%ecx
+ 8048455:       83 e4 f0                and    $0xfffffff0,%esp
+ 8048458:       50                      push   %eax
+ 8048459:       54                      push   %esp
+ 804845a:       52                      push   %edx
+ 804845b:       68 e0 85 04 08          push   $0x80485e0
+ 8048460:       68 80 85 04 08          push   $0x8048580
+ 8048465:       51                      push   %ecx
+ 8048466:       56                      push   %esi
+ 8048467:       68 4b 85 04 08          push   $0x804854b
+ 804846c:       e8 bf ff ff ff          call   8048430 <__libc_start_main@plt>
+ 8048471:       f4                      hlt    
+ 8048472:       66 90                   xchg   %ax,%ax
+ 8048474:       66 90                   xchg   %ax,%ax
+ 8048476:       66 90                   xchg   %ax,%ax
+ 8048478:       66 90                   xchg   %ax,%ax
+ 804847a:       66 90                   xchg   %ax,%ax
+ 804847c:       66 90                   xchg   %ax,%ax
+ 804847e:       66 90                   xchg   %ax,%ax
+```
 ## Start to trace the detail of the shared library
 
 ### _start
@@ -33,9 +75,40 @@ $ objdump -xds ./main | less
 $ gdb ./main
 ```
   * Use GDBTUI, press: "ctrl-x with 2" twice and input "start" to start.
-  * Set the breakpoint at _start
+  * Set the breakpoint at _start and start the program
 ```shell=
 (gdb) b *_start
+(gdb) start
+```
+  * We can dump the content of .got.plt section. We can observe that the content of 0x804a004 and 0x804a008 are modified.
+```
+(gdb) x/5wx 0x804a000
+0x804a000:      0x08049f04      0xf7ffd918      0xf7fee000      0x08048426
+0x804a010:      0x08048436
+```
+  * Since we set the breakpoint at *_start, the program counter is hold at the entry point of the program.
+  * Use the instruction step to execute the program
+```
+(gdb) si
+```
+  * When the program counter at 0x804846c, it call the function at 0x08048430, __libc_start_main@plt
+  * Back trace the entire stack and examine the value of the target addresses. It actually just jump to the next instruction.
+```
+(gdb) bt
+#0  0x08048430 in __libc_start_main@plt ()
+#1  0x08048471 in _start ()
+(gdb) x/x *0x804a010
+0x8048436 <__libc_start_main@plt+6>:    0x00000868
+```
+  * After that, the program counter jump to 0x8048410. It is actually the address of lib_a_func_two@plt-0x10
+  * The next instruction (0x8048416) is jump to the value of the address 0x804a008.
+```
+0x8048410                               pushl  0x804a004
+0x8048416                               jmp    *0x804a008
+```
+```
+(gdb) x/x *0x804a008
+0xf7fee000:     0x8b525150
 ```
 
 
