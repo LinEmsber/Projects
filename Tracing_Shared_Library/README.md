@@ -9,11 +9,9 @@ $ sh compiler.sh
 ```
 
 ## The anatomy of the executable
+  * Use objdump to list the related critical symbols and functions, as follows:
 ```shell=
 $ objdump -xds ./main | less
-```
-  * Use objdump to list the related critical symbols, as follows:
-```
 start address 0x08048450
 ...
 080483e0 l    d  .init  00000000              .init
@@ -66,6 +64,27 @@ start address 0x08048450
  804847c:       66 90                   xchg   %ax,%ax
  804847e:       66 90                   xchg   %ax,%ax
 ```
+  * Print shared object dependencies
+```shell=
+$ ldd ./main
+        linux-gate.so.1 =>  (0xf7754000)
+        ./lib_a.o (0xf774d000)
+        ./lib_b.o (0xf774a000)
+        libc.so.6 => /lib/i386-linux-gnu/libc.so.6 (0xf7575000)
+        /lib/ld-linux.so.2 (0xf7755000)
+```
+  * Use objdump to dump the assembly of dynamic linker/loader, ld-linux.so.2
+```shell=
+$ objdump -xd /lib/ld-linux.so.2 | less
+
+15000:       50                      push   %eax
+15001:       51                      push   %ecx
+15002:       52                      push   %edx
+15003:       8b 54 24 10             mov    0x10(%esp),%edx
+15007:       8b 44 24 0c             mov    0xc(%esp),%eax
+1500b:       e8 d0 97 ff ff          call   e7e0 <_dl_rtld_di_serinfo@@GLIBC_PRIVATE+0x5bc0>
+```
+
 ## Start to trace the detail of the shared library
 
 ### _start
@@ -91,7 +110,7 @@ $ gdb ./main
 ```
 (gdb) si
 ```
-  * When the program counter at 0x804846c, it call the function at 0x08048430, __libc_start_main@plt
+  * When the program counter at 0x804846c, it call the function at 0x08048430, __libc_start_main@plt()
   * Back trace the entire stack and examine the value of the target addresses. It actually just jump to the next instruction.
 ```
 (gdb) bt
@@ -100,7 +119,7 @@ $ gdb ./main
 (gdb) x/x *0x804a010
 0x8048436 <__libc_start_main@plt+6>:    0x00000868
 ```
-  * After that, the program counter jump to 0x8048410. It is actually the address of lib_a_func_two@plt-0x10
+  * After that, the program counter jump to 0x8048410. It is actually the address of lib_a_func_two@plt()-0x10
   * The next instruction (0x8048416) is jump to the value of the address 0x804a008.
 ```
 0x8048410                               pushl  0x804a004
@@ -110,6 +129,47 @@ $ gdb ./main
 (gdb) x/x *0x804a008
 0xf7fee000:     0x8b525150
 ```
+  * And then the program counter jump into the function of the dynamic linker/loader, /lib/ld-linux.so.2
+```
+(gdb) x $pc
+0xf7fee000:     0x8b525150
+(gdb) bt
+#0  0xf7fee000 in ?? () from /lib/ld-linux.so.2
+#1  0x08048471 in _start ()
+```
+  * We can examine the assembly of those address.
+```
+(gdb) x/x *0xf7fee003
+0x1024548b:     Cannot access memory at address 0x1024548b
+(gdb) x/x *0xf7fee007
+0xc24448b:      Cannot access memory at address 0xc24448b
+```
+  *  We try to disassemble to obtain the address of the content.
+```
+0x1024548b -> 8b 54 24 10
+0xc24448b  -> 8b 44 24 0c
+```
+  * Use grep to confirm it. There is only one result. Thus the content of 0xf7fee000 is from the address 0x15000 of /lib/ld-linux.so.2
+```
+$ objdump -xd /lib/ld-linux.so.2 | grep -B 1 "8b 44 24 0c" | grep "8b 54 24 10"
+15003:	8b 54 24 10          	mov    0x10(%esp),%edx
+```
+```
+15000:       50                      push   %eax
+15001:       51                      push   %ecx
+15002:       52                      push   %edx
+15003:       8b 54 24 10             mov    0x10(%esp),%edx
+15007:       8b 44 24 0c             mov    0xc(%esp),%eax
+1500b:       e8 d0 97 ff ff          call   e7e0 <_dl_rtld_di_serinfo@@GLIBC_PRIVATE+0x5bc0>
+```
+  * Meanwhile, we also can calculate the offset of the address of dynamic linker/loader.
+    * Use ldd to examine the shared object dependencies, /lib/ld-linux.so.2 (0xf7755000)
+    * The program counter is at 0x15000 of /lib/ld-linux.so.2
+    * The .text section of /lib/ld-linux.so.2 is start at 0x860
+```
+(gdb) p/x (0xf7fee000 - 0x15000) - 0xf7755000
+$9 = 0x884000
+```
 
 
 ## Reference
@@ -117,3 +177,5 @@ $ gdb ./main
  - [GOT and PLT for pwning.](https://systemoverlord.com/2017/03/19/got-and-plt-for-pwning.html)
  - [Shared Library 中 PLT 和 GOT 的使用機制](http://brandon-hy-lin.blogspot.tw/2015/12/shared-library-plt-got.html)
  - [Reverse debugging for gdb](http://hungmingwu-blog.logdown.com/posts/160187-reverse-debugging-for-gdb)
+ - [How process know address of shared library?](https://unix.stackexchange.com/questions/238930/how-process-know-address-of-shared-library)
+ - [dynamic linker/loader](http://man7.org/linux/man-pages/man8/ld.so.8.html)
