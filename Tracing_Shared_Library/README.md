@@ -3,9 +3,21 @@
 ## Introduction
 The practice of tracing shared library.
 
+## ELF interpreter
+  * Use *readelf* to explore the ELF
+```shell=
+$ readelf -l ./main | grep interpreter
+      [Requesting program interpreter: /lib/ld-linux.so.2]
+```
+
 ## How to build
+  * We write a shell script to compile the demo program. You also can specify the CROSS_COMPILE
 ```shell=
 $ sh compiler.sh
+```
+  * If the environment is the 64-bit, and without the 32-bit common library.
+```shell=
+sudo apt-get install gcc-multilib g++-multilib
 ```
 
 ## The anatomy of the executable
@@ -76,7 +88,6 @@ $ ldd ./main
   * Use objdump to dump the assembly of dynamic linker/loader, ld-linux.so.2
 ```shell=
 $ objdump -xd /lib/ld-linux.so.2 | less
-
 15000:       50                      push   %eax
 15001:       51                      push   %ecx
 15002:       52                      push   %edx
@@ -179,3 +190,5 @@ $9 = 0x884000
  - [Reverse debugging for gdb](http://hungmingwu-blog.logdown.com/posts/160187-reverse-debugging-for-gdb)
  - [How process know address of shared library?](https://unix.stackexchange.com/questions/238930/how-process-know-address-of-shared-library)
  - [dynamic linker/loader](http://man7.org/linux/man-pages/man8/ld.so.8.html)
+ - [32-bits compilation on 64-bits machine](http://basic-converter.proboards.com/thread/908/32-bits-compilation-on-machine)
+ - [Notes on Dynamic Linking](https://zhongshugu.wordpress.com/2014/02/27/notes-on-dynamic-linking/)
