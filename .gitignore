@@ -29,6 +29,9 @@
 *.hex
 main
 
+# Swap
+*.swp
+
 # Debug files
 *.dSYM/
 *.su
