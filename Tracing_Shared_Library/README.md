@@ -76,7 +76,6 @@ $ ldd ./main
   * Use objdump to dump the assembly of dynamic linker/loader, ld-linux.so.2
 ```shell=
 $ objdump -xd /lib/ld-linux.so.2 | less
-
 15000:       50                      push   %eax
 15001:       51                      push   %ecx
 15002:       52                      push   %edx
@@ -87,25 +86,37 @@ $ objdump -xd /lib/ld-linux.so.2 | less
 
 ## Start to trace the detail of the shared library
 
-### _start
-  * We can set a berakpoint at _start to observe the entire procedure from the entry point.
-  * Use GDB with TUI (Text User Interface) to trace the program. Execute the following commands.
+### Before _start
+  * Before the tracing of the program, we can use objdump to obtain .got.plt section
+```shell=
+Contents of section .got.plt:
+ 804a000 049f0408 00000000 00000000 26840408
+ 804a010 36840408                           
+```
+  * Use GDB to trace the program. Execute the following commands.
 ```shell=
 $ gdb ./main
 ```
-  * Use GDBTUI, press: "ctrl-x with 2" twice and input "start" to start.
-  * Set the breakpoint at _start and start the program
+  * When we access into the interface of GDB, we can examine .got.plt section. We can observe that it is different with the original.
 ```shell=
-(gdb) b *_start
-(gdb) start
-```
-  * We can dump the content of .got.plt section. We can observe that the content of 0x804a004 and 0x804a008 are modified.
-```
 (gdb) x/5wx 0x804a000
 0x804a000:      0x08049f04      0xf7ffd918      0xf7fee000      0x08048426
 0x804a010:      0x08048436
 ```
+  * The results of the memory examine from GDB is little-endiness
+    * 804a000: 049f0408 -> 0x08049f04 (same)
+    * 804a004: 00000000 -> 0xf7ffd918
+    * 804a008: 00000000 -> 0xf7fee000
+    * 804a00c: 26840408 -> 0x08048426 (same)
+    * 804a010: 36840408 -> 0x08048436 (same)
+### _start
+  * We can set a berakpoint at _start to observe the entire procedure from the entry point, as follows:
+```shell=
+(gdb) b *_start
+(gdb) start
+```
   * Since we set the breakpoint at *_start, the program counter is hold at the entry point of the program.
+    * start address 0x08048450
   * Use the instruction step to execute the program
 ```
 (gdb) si
@@ -120,11 +131,12 @@ $ gdb ./main
 0x8048436 <__libc_start_main@plt+6>:    0x00000868
 ```
   * After that, the program counter jump to 0x8048410. It is actually the address of lib_a_func_two@plt()-0x10
-  * The next instruction (0x8048416) is jump to the value of the address 0x804a008.
+  * The next instruction (0x8048416) is jump to the value of the address 0x804a008, as follows:
 ```
 0x8048410                               pushl  0x804a004
 0x8048416                               jmp    *0x804a008
 ```
+  * We can examine the content of the address 0x804a008, and we obtain it is 0xf7fee000. It is same as the result that we examined before _start.
 ```
 (gdb) x/x *0x804a008
 0xf7fee000:     0x8b525150
@@ -170,6 +182,38 @@ $ objdump -xd /lib/ld-linux.so.2 | grep -B 1 "8b 44 24 0c" | grep "8b 54 24 10"
 (gdb) p/x (0xf7fee000 - 0x15000) - 0xf7755000
 $9 = 0x884000
 ```
+  * Set breakpoint at the return point of the /lib/ld-linux.so.2, and use GDB command, continue.
+```
+(gdb) b *0xf7fee01b
+(gdb) continue
+```
+  * Set a breakpoint at the last instruction of the __libc_start_main(), 0xf7e11633
+```
+(gdb) b *0xf7e11633
+(gdb) continue
+```
+  * The text of 0xf7e11633
+```
+0xf7e11633 <__libc_start_main+243>      call   *0x70(%esp)
+```
+  * We can examine the address of the called subroutine
+```
+(gdb) p/x $esp
+$1 = 0xffffcd10
+(gdb) p/x *(0xffffcd10+0x70)
+$2 = 0x804854b
+```
+
+### The function call step of the program, from _start() to main()
+  * _start() (0x08048471)
+  * __libc_start_main@plt() (0x08048430)
+  * lib_a_func_two@plt()-0x10 (0x08048410)
+  * *0x804a004 (/lib/ld-linux.so.2) (0xf7fee000)
+  * __libc_start_main() (0xf7e11540)
+  * __libc_csu_init()
+  * _init () (0x080483e0)
+  * __libc_start_main()
+  * main()
 
 
 ## Reference
