@@ -1,10 +1,10 @@
-# Tracing Shared Library
+# Shared Library Tracing
 
 ## Introduction
-The practice of tracing shared library.
+  * This is an practice of shared library tracing. We use 32-bit machine for easier to understand.
 
 ## ELF interpreter
-  * Use *readelf* to explore the ELF
+  * Use *readelf* to explore the interpreter (or, dynamic linker/loader) of the target ELF
 ```shell=
 $ readelf -l ./main | grep interpreter
       [Requesting program interpreter: /lib/ld-linux.so.2]
@@ -227,9 +227,51 @@ $2 = 0x804854b
   * __libc_start_main()
   * main()
 
+## main()
+  * Set a breakpoint at main() and use instruction step command to 0x804855c.
+```
+(gdb) b *mach
+(gdb) start
+(gdb) si
+...
+```
+  * When we at lib_a_func_two@plt, the program counter jump to the head of .plt section at 0x8048410
+```
+(gdb) x/4xi 0x8048410
+=> 0x8048410:   pushl  0x804a004
+   0x8048416:   jmp    *0x804a008
+   0x804841c:   add    %al,(%eax)
+   0x804841e:   add    %al,(%eax)
+```
+  * And then the program counter jump to the value of address 0x804a008, it is the memory which stored the address of the function of the dynamic linker/loader, /lib/ld-linux.so.2
+  * After the dynamic linking, the function return, and the program counter jump to lib_a_func_two at address 0xf7fd1596.
+  * Meanwhile, the content of 0x804a00c is modified by linker. The following is the before and after of section .got.plt
+### Before linking
+```
+(gdb) x/5x 0x804a000
+0x804a000:      0x08049f04      0xf7ffd918      0xf7fee000      0x08048426
+0x804a010:      0xf7e11540
+```
+### After linking
+```
+(gdb) x/5x 0x804a000
+0x804a000:      0x08049f04      0xf7ffd918      0xf7fee000      0xf7fd1596
+0x804a010:      0xf7e11540
+```
+  * That is means the dynamic linker have already modified the .got.plt for program to use the shared library.
+  * We continue use the instruction step command to trace the next shared library, lib_b, which is called by the shared library, lib_a.
+  * Since the function lib_b_func_one is from other shared library, the above steps need to repeat again.
+
+### The function call step of the dynamic linking in main()
+  * main()
+  * lib_a_func_two@plt
+  * .plt section (0x8048410)
+  * *0x804a004 (/lib/ld-linux.so.2) (0xf7fee000)
+  * lib_a_func_two (0xf7fd1596)
 
 ## Reference
  - [X86 Assembly/X86 Architecture](https://en.wikibooks.org/wiki/X86_Assembly/X86_Architecture)
+ - [x86 Instruction Set Reference CALL](https://c9x.me/x86/html/file_module_x86_id_26.html)
  - [GOT and PLT for pwning.](https://systemoverlord.com/2017/03/19/got-and-plt-for-pwning.html)
  - [Shared Library 中 PLT 和 GOT 的使用機制](http://brandon-hy-lin.blogspot.tw/2015/12/shared-library-plt-got.html)
  - [Reverse debugging for gdb](http://hungmingwu-blog.logdown.com/posts/160187-reverse-debugging-for-gdb)

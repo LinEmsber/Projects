@@ -1,6 +1,6 @@
 static int a;
 extern int b;
-extern void lib_b_func_1();
+extern void lib_b_func_one();
 
 void lib_a_func_one()
 {
@@ -11,4 +11,5 @@ void lib_a_func_one()
 void lib_a_func_two()
 {
 	lib_a_func_one();
+	lib_b_func_one();
 }
