@@ -50,7 +50,7 @@
   - $ ls ./output/images/rootfs.cpio.gz
   - > ./output/images/rootfs.cpio.gz
 - Linux
-  - $ git cloen https://github.com/torvalds/linux.git
+  - $ git clone https://github.com/torvalds/linux.git
   - $ ARCH=arm64 CROSS_COMPILE="$<gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu>/bin/aarch64-none-linux-gnu-" make defconfig
   - $ ARCH=arm64 CROSS_COMPILE="$<gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu>/bin/aarch64-none-linux-gnu-" make -j4
   - $ ls ./arch/arm64/boot/Image
